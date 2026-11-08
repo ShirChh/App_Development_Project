@@ -62,3 +62,13 @@ class DatabaseHelper:
 		conn.commit()
 		conn.close()
 		return rows_affected > 0
+
+	def delete_user(self, user_id):
+		"""Delete a user from the database"""
+		conn = sqlite3.connect(self.db_name)
+		cursor = conn.cursor()
+		cursor.execute('DELETE FROM users WHERE user_id = ?', (user_id,))
+		rows_affected = cursor.rowcount
+		conn.commit()
+		conn.close()
+		return rows_affected > 0

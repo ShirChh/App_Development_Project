@@ -104,6 +104,18 @@ def update_user(id):
             
     # ADDED FALLBACK RETURN (Executes if POST request validation fails)
     return render_template('updateUser.html', form=update_user_form)
+
+@app.route('/deleteUser/<int:id>', methods = ['POST'])
+def delete_user(id):
+    try:
+        success = db_helper.delete_user(id)
+        if success:
+            print(f"User with ID {id} was deleted successfully")
+        else:
+            print(f"Failed to delete user with ID {id}")
+    except Exception as e:
+        print(f"Error deleting user: {e}")
+    return redirect(url_for('retrieve_users'))
         
 if __name__ == '__main__':
     app.run()
