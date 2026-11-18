@@ -116,6 +116,11 @@ def delete_user(id):
     except Exception as e:
         print(f"Error deleting user: {e}")
     return redirect(url_for('retrieve_users'))
+
+@app.errorhandler(404)
+def page_not_found(e):
+    return render_template('error404.html'), 404
         
 if __name__ == '__main__':
-    app.run()
+    app.run(debug=True)
+    
