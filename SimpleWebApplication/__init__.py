@@ -1,9 +1,10 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, session
 from Forms import CreateUserForms
 from database import DatabaseHelper
 from User import User
 
 app = Flask(__name__)
+app.secret_key = 'any_random_string'
 
 db_helper = DatabaseHelper()
 
@@ -34,7 +35,9 @@ def create_user():
                 user = User.from_database_row(user_data)
                 print(f"{user.get_first_name()} {user.get_last_name()} was stored in database "
                       f"successfully with user_id == {user.get_user_id()}")
-                return redirect(url_for('home'))
+                #Create session variable
+                session['user_created'] = user.get_first_name() + ' ' + user.get_last_name()
+                return redirect(url_for('retrieve_users'))
         except Exception as e:
             print(f"Error storing user: {e}")
 
@@ -72,17 +75,18 @@ def update_user(id):
                 if user_data:
                     user = User.from_database_row(user_data)
                     print(f"User {user.get_first_name()} {user.get_last_name()} was updated successfully with user_id == {user.get_user_id()}")
+                    #Create session variable
+                    session['user_updated'] = user.get_first_name() + ' ' + user.get_last_name()
                 return redirect(url_for('retrieve_users'))
             else: 
                 print(f"Failed to update user with id {id}")
-                # ADDED MISSING RETURN
                 return render_template('updateUser.html', form=update_user_form)
         except Exception as e:
             print(f"Error updating user: {e}")
             return render_template('updateUser.html', form=update_user_form)
-            
-    # FIXED INDENTATION AND CHANGED TO ELIF
-    elif request.method == 'GET':
+        
+    else:
+        # elif request.method == 'GET':
         # Handle GET request - populate form with existing user data
         try:
             user_data = db_helper.get_user_by_id(id)
@@ -105,14 +109,19 @@ def update_user(id):
     # ADDED FALLBACK RETURN (Executes if POST request validation fails)
     return render_template('updateUser.html', form=update_user_form)
 
-@app.route('/deleteUser/<int:id>', methods = ['POST'])
+@app.route('/deleteUser/<int:id>', methods=['POST'])
 def delete_user(id):
     try:
-        success = db_helper.delete_user(id)
-        if success:
-            print(f"User with ID {id} was deleted successfully")
-        else:
-            print(f"Failed to delete user with ID {id}")
+    # Get user before deleting to store name in session
+        user_data = db_helper.get_user_by_id(id)
+        if user_data:
+            user = User.from_database_row(user_data)
+            success = db_helper.delete_user(id)
+            if success:
+                print(f"User with ID {id} was deleted successfully")
+                # Create session variable
+                session['user_deleted'] = user.get_first_name() + ' ' + user.get_last_name()
+        else: print(f"Failed to delete user with ID {id}")
     except Exception as e:
         print(f"Error deleting user: {e}")
     return redirect(url_for('retrieve_users'))
