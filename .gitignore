@@ -374,3 +374,4 @@ SimpleWebApplication/node_modules/prettier-plugin-jinja-template/test/cases/stat
 SimpleWebApplication/node_modules/prettier-plugin-jinja-template/test/cases/statement_with/input.html
 SimpleWebApplication/package-lock.json
 SimpleWebApplication/package.json
+SimpleWebApplication/library_users.db
